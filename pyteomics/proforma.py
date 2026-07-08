@@ -4909,7 +4909,7 @@ class ProteoformCombinator:
 
     def _apply_fixed_modifications(self):
         for c in self.template.fixed_modifications:
-            rule = GeneratorModificationRuleDirective(c)
+            rule = GeneratorModificationRuleDirective.from_unlocalized_rule(c)
             positions = rule.find_positions(self.template)
             for i in positions:
                 (aa, tags) = self.template[i]

@@ -216,6 +216,7 @@ class ProFormaTest(unittest.TestCase):
         self.assertEqual(len(parsed), 2)
         self.assertEqual(parsed[0][1]['charge_state'].charge, 2)
         self.assertEqual(parsed[1][1]['charge_state'].charge, 3)
+        self.assertTrue(parsed.chimeric)
 
         forms = ProForma.parse(seq, chimeric=True)
         self.assertEqual(len(forms), 2)
@@ -970,6 +971,22 @@ class ProteoformsFunctionTest(unittest.TestCase):
                     self.assertEqual(len(forms), nsites)  # Phospho on T or S
         forms = list(proteoforms(pf, variable_modifications=variable_mods, expand_rules=True))
         self.assertEqual(len(forms), 2 ** nsites)  # all combinations of phospho / no phospho on each S or T
+
+    def test_fixed_mods_from_str(self):
+        seq = "EMECTSESPEK"
+        fixed_mods = ["Carbamidomethyl|Position:C"]
+        pf = ProForma.parse(seq)
+        forms = list(proteoforms(pf, fixed_modifications=fixed_mods))
+        self.assertEqual(len(forms), 1)
+        self.assertTrue(isinstance(forms[0].sequence[3][1][0], GenericModification))
+
+    def test_fixed_mods_from_dict(self):
+        seq = "EMECTSESPEK"
+        fixed_mods = {"Carbamidomethyl": ["C"]}
+        pf = ProForma.parse(seq)
+        forms = list(proteoforms(pf, fixed_modifications=fixed_mods))
+        self.assertEqual(len(forms), 1)
+        self.assertTrue(isinstance(forms[0].sequence[3][1][0], GenericModification))
 
     def test_expand_mods_from_list(self):
         seq = "EMEVTSESPEK"
