@@ -19,6 +19,12 @@ implemented by :py:mod:`psims`:
     obo_cache.cache_path = '.'
     obo_cache.enabled = True
 
+To completely disable trying to get the CV from the Internet:
+
+.. code:: python
+
+    obo_cache.use_remote = False
+
 
 Accessing Controlled Vocabulary Terms In Structured Data
 --------------------------------------------------------
