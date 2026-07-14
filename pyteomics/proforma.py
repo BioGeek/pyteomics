@@ -4529,7 +4529,16 @@ class GeneratorModificationRuleDirective:
     def __hash__(self):
         return hash(self.token)
 
-    def __init__(self, rule, region=None, colocal_known: bool = False, colocal_unknown: bool = False, limit: int = 1, labile: bool = False, strip: bool = False):
+    def __init__(
+        self,
+        rule: ModificationRule,
+        region: Optional[TaggedInterval]=None,
+        colocal_known: bool = False,
+        colocal_unknown: bool = False,
+        limit: int = 1,
+        labile: bool = False,
+        strip: bool = False,
+    ):
         self.rule = rule
         self.region = region
         self.colocal_known = colocal_known
@@ -4909,7 +4918,10 @@ class ProteoformCombinator:
 
     def _apply_fixed_modifications(self):
         for c in self.template.fixed_modifications:
-            rule = GeneratorModificationRuleDirective.from_unlocalized_rule(c)
+            if isinstance(c, ModificationRule):
+                rule = GeneratorModificationRuleDirective(c)
+            else:
+                rule = GeneratorModificationRuleDirective.from_unlocalized_rule(c)
             positions = rule.find_positions(self.template)
             for i in positions:
                 (aa, tags) = self.template[i]
