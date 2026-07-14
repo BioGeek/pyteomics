@@ -102,6 +102,16 @@ class ProFormaTest(unittest.TestCase):
         self.assertEqual(i.c_term[0].name, "Methyl")
         self.assertEqual(i[-1][1][0].name, "iTRAQ4plex")
 
+    def test_slice_grouped_modification(self):
+        # Regression test: slicing a sequence with a grouped modification tag
+        # (e.g. "#g1") used to raise a TypeError because the tag position tuple
+        # returned by find_tags_by_id was used directly as a sequence index.
+        seq = "EMEVT[#g1]S[#g1]ES[#g1]PEK"
+        i = ProForma.parse(seq)
+        sub = i[2:9]
+        self.assertEqual(str(sub), "EVT[#g1]S[#g1]ES[#g1]P")
+        self.assertEqual(sub.group_ids, ["#g1"])
+
     def test_fragments(self):
         i = ProForma.parse("PEPTIDE")
         masses = i.fragments('b', 1)
