@@ -1,3 +1,12 @@
+5.0.1
+-----
+
+  - Support chimeric ProForma sequences (`#210 <https://github.com/levitsky/pyteomics/pull/210>`_ by Yuhui Hong).
+  - Fixes in ProForma (`#208 <https://github.com/levitsky/pyteomics/pull/208>`_ and `#212 <https://github.com/levitsky/pyteomics/pull/212>`_
+    by Joshua Klein), fixing `#207 <https://github.com/levitsky/pyteomics/issues/207>`_, `#209 <https://github.com/levitsky/pyteomics/issues/209>`_
+    and `#211 <https://github.com/levitsky/pyteomics/issues/211>`_.
+
+
 5.0
 ---
 
@@ -63,7 +72,6 @@
  - Add support for explicit XML namespaces (`#200 <https://github.com/levitsky/pyteomics/issues/200>`_).
  - Fix `#47 <https://github.com/levitsky/pyteomics/issues/47>`_ (Postgres compatibility for :py:mod:`pyteomics.mass.unimod`) in
    `#201 <https://github.com/levitsky/pyteomics/pull/201>`_. This changes certain column types from `VARCHAR` to Unicode text.
-
 
 
 4.7.5
