@@ -62,6 +62,34 @@ class ProFormaTest(unittest.TestCase):
         self.assertRaises(ProFormaError, lambda: parse(
             "PRQT(EQ(CFQR)[Carbamidomethyl]MS)[+19.0523]ISK"))
 
+    def test_error_on_second_n_terminal_group(self):
+        # The grammar permits one N-terminal group:
+        #   peptidoform = ... [modNTerm], sequence, [modCTerm]
+        #   modNTerm = modOrLabel, [modOrLabel], "-"
+        # A second group used to overwrite the first, so this parsed as if only the
+        # last modification were present instead of raising.
+        self.assertRaises(ProFormaError, lambda: parse("[UNIMOD:5]-[UNIMOD:385]-PEPTIDE"))
+        self.assertRaises(ProFormaError, lambda: parse("[Acetyl]-[Phospho]-PEPTIDE"))
+        # Also rejected when the discarded group would have been the only difference.
+        self.assertRaises(ProFormaError, lambda: parse("[Formula:H-2C1O1]-[Acetyl]-PEPTIDE"))
+
+    def test_multiple_n_terminal_modifications_in_one_group(self):
+        # The supported spelling for two N-terminal modifications is a single group.
+        # Assert the mass, not just that it parses: the bug this guards against silently
+        # dropped a modification, which a parse-only check would not have caught.
+        # Carbamylation (UNIMOD:5, +43.005814) with ammonia loss (UNIMOD:385, -17.026549)
+        # is +25.979265 Da, equal to [Formula:H-2C1O1] and [+25.979265].
+        base = ProForma.parse("PEPTIDE").mass
+        expected = 25.979265
+        for seq in ("[UNIMOD:5][UNIMOD:385]-PEPTIDE",
+                    "[Formula:H-2C1O1]-PEPTIDE",
+                    "[+25.979265]-PEPTIDE"):
+            obj = ProForma.parse(seq)
+            self.assertAlmostEqual(obj.mass - base, expected, 5, msg=seq)
+        # The two-modification group keeps both tags rather than collapsing them.
+        obj = ProForma.parse("[UNIMOD:5][UNIMOD:385]-PEPTIDE")
+        self.assertEqual(len(obj.properties['n_term']), 2)
+
     def test_localization_scores(self):
         seq = "EM[Oxidation]EVT[#g1(0.01)]S[#g1(0.09)]ES[Phospho#g1(0.90)]PEK"
         obj = ProForma.parse(seq)

@@ -2967,6 +2967,21 @@ class Parser:
             self.unlocalized_modifications.extend(self.current_tag())
             self.state = BEFORE
         elif c == "-":
+            if self.n_term:
+                # The grammar allows a single N-terminal group:
+                #     peptidoform = ... [modNTerm], sequence, [modCTerm]
+                #     modNTerm = modOrLabel, [modOrLabel], "-"
+                # Assigning here instead of rejecting silently discarded the earlier
+                # group, so e.g. "[UNIMOD:5]-[UNIMOD:385]-PEPTIDE" parsed as if only
+                # UNIMOD:385 were present, losing 43 Da without any warning.
+                raise ProFormaError(
+                    f"Error In State {self.state}, found a second N-terminal modification group "
+                    f"at index {self.index}; ProForma allows only one N-terminal group. Multiple "
+                    f"N-terminal modifications are written in a single group, e.g. "
+                    f"'[UNIMOD:5][UNIMOD:385]-PEPTIDE'",
+                    self.index,
+                    self.state,
+                )
             self.n_term = self.current_tag()
             self.state = BEFORE
         elif c == "^":
