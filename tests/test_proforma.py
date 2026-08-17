@@ -35,13 +35,21 @@ class ProFormaTest(unittest.TestCase):
         """
         prefixes = (
             "", "{+1}", "[+1]?", "[+1]^2?", "[+1]-", "[+1][+2]-",
-            "<13C>", "<[+1]@C>",
+            "[+1][+2][+3]-", "<13C>", "<[+1]@C>",
         )
         sequences = ("PEPTIDE", "PEP[+1]TIDE", "(PEP)[+1]TIDE", "(?PEP)TIDE")
-        suffixes = ("", "-[+1]", "-[+1][+2]", "/2", "/2[+H+]")
+        suffixes = ("", "-[+1]", "-[+1][+2]", "-[+1][+2][+3]", "/2", "/2[+H+]")
         for prefix, sequence, suffix in product(prefixes, sequences, suffixes):
             with self.subTest(peptidoform=prefix + sequence + suffix):
                 ProForma.parse(prefix + sequence + suffix)
+
+        # Positive examples added with HUPO-PSI/ProForma issue #33.
+        for peptidoform in (
+            "[Acetyl][Acetyl][Carbamyl]-QPEPTIDE",
+            "PEPTIDEG-[Methyl][Amidated][INFO:A lot of C terminal mods]",
+        ):
+            with self.subTest(peptidoform=peptidoform):
+                ProForma.parse(peptidoform)
 
     def test_spec_shaped_invalid_peptidoform_conformance_matrix(self):
         """Reject grammar-breaking mutations of otherwise valid productions."""
@@ -52,8 +60,6 @@ class ProFormaTest(unittest.TestCase):
             "{+1}",                  # labile tag without a sequence
             "<13C>",                 # isotope rule without a sequence
             "[+1]-[+2]-PEPTIDE",     # repeated modNTerm group
-            "[+1][+2][+3]-PEPTIDE",  # modNTerm has at most two tags
-            "PEPTIDE-[+1][+2][+3]",  # modCTerm has at most two tags
             "PEPTIDE-[+1]X",         # no content may follow modCTerm
             "PEPTIDE/2[+H+]X",       # no content may follow an adduct list
         )

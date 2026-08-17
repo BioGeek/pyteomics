@@ -2984,15 +2984,6 @@ class Parser:
         elif c == "^":
             self.state = UNLOCALIZED_COUNT
         elif c == "[":
-            # ``modNTerm`` permits one required and one optional tag.  A
-            # third tag would otherwise be accepted even though it is outside
-            # the ProForma grammar.
-            if len(self.current_tag.boundaries) >= 1:
-                raise ProFormaError(
-                    "ProForma allows at most two N-terminal modifications",
-                    self.index,
-                    self.state,
-                )
             self.current_tag.bound()
             self.state = TAG_BEFORE
         else:
@@ -3079,12 +3070,6 @@ class Parser:
         elif c == "+":
             self._handle_chimeric_separator()
         elif c == "[":
-            if len(self.c_term) >= 2:
-                raise ProFormaError(
-                    "ProForma allows at most two C-terminal modifications",
-                    self.index,
-                    self.state,
-                )
             self.state = TAG_AFTER
             self.depth = 1
         else:
